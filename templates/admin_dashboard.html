@@ -1,0 +1,234 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container py-4">
+        <!-- Header -->
+        <div class="bg-dark text-white p-3 mb-4 d-flex justify-content-between align-items-center">
+            <h3 class="fw-bold">Welcome to Admin Dashboard</h3>
+            <div class="nav">
+                <a href="{{url_for('admin_dashboard')}}" class="text-white me-3">Home</a>
+                <a href="{{url_for('admin_search')}}" class="text-white me-3">Search</a>
+                <a href="#" class="text-white me-3">Summary</a>
+                <a href="{{url_for('user_login')}}" class="text-white">Logout</a>
+            </div>
+        </div>
+        
+        <!-- Services Table -->
+        <div class="bg-white p-4 rounded shadow mb-4">
+            <h3 class="fw-bold mb-3">Services</h3>
+            <table class="table table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Service Name</th>
+                        <th>Base Price</th>
+                        <th>Time (in minutes)</th>
+                        <th>Category</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for service in services %}
+                    <tr>
+                        <td>
+                            <a href="{{url_for('service_details', id=service.id) }}" class="text-primary">
+                                {{ service.id }}
+                            </a>
+                        </td>
+                        <td>{{ service.name }}</td>
+                        <td>{{ service.base_price }}</td>
+                        <td>{{ service.time_required }}</td>
+                        <td>{{ service.category }}</td>
+                        <td>
+                            <div class="d-flex justify-content-end">
+                                <a href="{{ url_for('edit_service', service_id=service.id) }}" class="btn btn-primary btn-sm me-2">Edit</a>
+                                <a href="{{ url_for('delete_service', service_id=service.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this service?');">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">No Services found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <a href="{{ url_for('add_service') }}" class="text-success mt-3 d-block">+ New Service</a>
+        </div>
+
+        <!-- Customer Details Table -->
+        <div class="bg-white p-4 rounded shadow mb-4">
+            <h3 class="fw-bold mb-3">Customer Details</h3>
+            <table class="table table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Customer ID</th>
+                        <th>Name</th>
+                        <th>Address</th>
+                        <th>Phone</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in customers %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('customer_details', id=customer.id) }}" class="text-primary">
+                                {{ customer.id }}
+                            </a>
+                        </td>
+                        <td>{{ customer.name }}</td>
+                        <td>{{ customer.address }}, {{customer.pincode}}</td>
+                        <td>{{ customer.phone }}</td>
+                        <td>
+                            <div class="d-flex justify-content-center">
+                                <form method="POST" action="{% if customer.is_blocked %}{{ url_for('unblock_customer', id=customer.id) }}{% else %}{{ url_for('block_customer', id=customer.id) }}{% endif %}" class="me-2">
+                                    <button type="submit" class="btn btn-sm {% if customer.is_blocked %}btn-warning{% else %}btn-primary{% endif %}">
+                                        {{ 'Unblock' if customer.is_blocked else 'Block' }}
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('delete_customer', id=customer.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">No Customers found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Professionals Table -->
+        <div class="bg-white p-4 rounded shadow mb-4">
+            <h3 class="fw-bold mb-3">Professionals</h3>
+            <table class="table table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Service</th>
+                        <th>Experience</th>
+                        <th>Verification</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for professional in professionals %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('professional_details', id=professional.id) }}" class="text-primary">
+                                {{ professional.id }}
+                            </a>
+                        </td>
+                        <td>{{ professional.name }}</td>
+                        <td>{{ professional.service.name }}</td>
+                        <td>{{ professional.experience_years }}</td>
+                        <td>
+                            <div class="d-flex justify-content-center">
+                                {% if professional.is_verified == "Pending" %}
+                                <span class="text-warning me-2">Pending</span>
+                                <form action="{{ url_for('approve_professional', id=professional.id) }}" method="POST" class="me-2">
+                                    <button type="submit" class="btn btn-sm btn-success">Accept</button>
+                                </form>
+                                <form action="{{ url_for('reject_professional', id=professional.id) }}" method="POST" class="me-2">
+                                    <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                                </form>
+                                {% elif professional.is_verified == "Accepted" %}
+                                <span class="text-success">Accepted</span>
+                                {% elif professional.is_verified == "Rejected" %}
+                                <span class="text-danger">Rejected</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-center">
+                                {% if professional.is_blocked %}
+                                    <form action="{{ url_for('unblock_professional', id=professional.id) }}" method="POST" class="me-2">
+                                        <button type="submit" class="btn btn-sm btn-warning">Unblock</button>
+                                    </form>
+                                {% else %}
+                                    <form action="{{ url_for('block_professional', id=professional.id) }}" method="POST" class="me-2">
+                                        <button type="submit" class="btn btn-sm btn-primary">Block</button>
+                                    </form>
+                                {% endif %}
+                                <form action="{{ url_for('delete_professional', id=professional.id) }}" method="POST">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this professional?');">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">No Professionals found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Service Requests Table -->
+        <div class="bg-white p-4 rounded shadow mb-4">
+            <h3 class="fw-bold mb-3">Service Requests</h3>
+            <table class="table table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Requested By</th>
+                        <th>Assigned Professional</th>
+                        <th>Requested Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in service_requests %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('service_request_details', id=request.id) }}" class="text-primary">
+                                {{ request.id }}
+                            </a>
+                        </td>
+                        <td>{{ request.customer.name }}</td>
+                        <td>{{ request.professional.name}}</td>
+                        <td>{{ request.request_date.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if request.status == "Pending" %}
+                                <span class="text-warning me-2">Pending</span>
+                                {% elif request.status == "Accepted"%}
+                                <span class="text-primary me-2">Accepted</span>
+                                {% elif request.status == "Completed"%}
+                                <span class="text-success me-2">Completed</span>
+                                {% elif request.status == "Reported"%}
+                                <span class="text-danger me-2">Reported</span>
+                                {% else %}
+                                <span class="text-danger me-2">Rejected</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">No Service Requests found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

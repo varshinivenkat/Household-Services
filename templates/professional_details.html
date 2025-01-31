@@ -1,0 +1,145 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="h4">Professional Details</h2>
+                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+                </div>
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Professional ID</th>
+                        <td>{{ professional.id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Name</th>
+                        <td>{{ professional.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Service</th>
+                        <td>{{ professional.service.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Experience (Years)</th>
+                        <td>{{ professional.experience_years }}</td>
+                    </tr>
+                    <tr>
+                        <th>Phone</th>
+                        <td>{{ professional.phone }}</td>
+                    </tr>
+                    <tr>
+                        <th>Location</th>
+                        <td>{{ professional.location }}</td>
+                    </tr>
+                    <tr>
+                        <th>Pincode</th>
+                        <td>{{ professional.pincode }}</td>
+                    </tr>
+                    <tr>
+                        <th>Verification Status</th>
+                        <td>
+                            {% if professional.is_verified == "Pending" %}
+                                <span class="text-warning">Pending</span>
+                            {% elif professional.is_verified == "Rejected" %}
+                                <span class="text-danger">Rejected</span>
+                            {% elif professional.is_verified == "Accepted" %}
+                                <span class="text-success">Accepted</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Account Status</th>
+                        <td>
+                            {% if professional.is_blocked %}
+                                <span class="text-danger">Blocked</span>
+                            {% else %}
+                                <span class="text-success">Unblocked</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Document</th>
+                        <td>
+                            {% if professional.documents_path %}
+                                {% if professional.documents_path.endswith('.pdf') %}
+                                    <a href="{{ url_for('uploaded_file', filename=professional.documents_path.split('/')[-1]) }}" 
+                                    class="text-primary" 
+                                    target="_blank">View Document</a>
+                                {% endif %}
+                            {% else %}
+                                No document uploaded
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Rating</th>
+                        <td>
+                            <form method="POST">
+                                <input type="number" step="0.1" min="1" max="5" name="rating" value="{{ professional.average_rating or '' }}" class="form-control d-inline-block w-auto me-2" placeholder="Enter rating">
+                                <button type="submit" name="update_rating" class="btn btn-primary">Update Rating</button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h3 class="h5 mb-4">Service Requests</h3>
+                <table class="table table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Requested Date</th>
+                            <th>Status</th>
+                            <th>Customer Assigned</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in requests %}
+                        <tr>
+                            <td>{{ request.id }}</td>
+                            <td>{{ request.request_date.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                {% if request.status == "Pending" %}
+                                    <span class="text-warning">Pending</span>
+                                {% elif request.status == "Requested" %}
+                                    <span class="text-primary">Requested</span>
+                                {% elif request.status == "Rejected" %}
+                                    <span class="text-danger">Rejected</span>
+                                {% elif request.status == "Reported" %}
+                                    <span class="text-danger">Reported</span>
+                                {% else %}
+                                    <span class="text-success">Completed</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ request.customer.name }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center">No service requests found for this professional</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

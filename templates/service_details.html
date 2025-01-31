@@ -1,0 +1,86 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="h4">Service Details</h2>
+                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+                </div>
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Service ID</th>
+                        <td>{{ service.id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Name</th>
+                        <td>{{ service.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Base Price</th>
+                        <td>{{ service.base_price }}</td>
+                    </tr>
+                    <tr>
+                        <th>Time Required (Hours)</th>
+                        <td>{{ service.time_required }}</td>
+                    </tr>
+                    <tr>
+                        <th>Category</th>
+                        <td>{{ service.category }}</td>
+                    </tr>
+                    <tr>
+                        <th>Description</th>
+                        <td>{{ service.description }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title h5 mb-4">Professionals Offering This Service</h3>
+                <table class="table table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Professional ID</th>
+                            <th>Full Name</th>
+                            <th>Experience (Years)</th>
+                            <th>Phone</th>
+                            <th>Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for professional in professionals %}
+                        <tr>
+                            <td>{{ professional.id }}</td>
+                            <td>{{ professional.name }}</td>
+                            <td>{{ professional.experience_years }}</td>
+                            <td>{{ professional.phone }}</td>
+                            <td>{{ professional.average_rating }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center">No professionals found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
